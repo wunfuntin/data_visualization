@@ -1,11 +1,9 @@
 # Package imports
 import dash
 import dash_bio as dashbio
-import dash_bootstrap_components as dbc
 import os
 
-from dash import html, dcc, Input, Output, callback
-from dash_bio.utils import PdbParser, create_mol3d_style
+from dash import html, dcc
 from dash_bootstrap_templates import load_figure_template
 
 # Local imports
@@ -50,5 +48,20 @@ layout = html.Div([
         },
         styles={},
     ),
+    html.H1('NGL Molecular Structure Viewer'),
+
+    dcc.Dropdown(
+        id='ngl-file-dropdown',
+        options=pdb_options,
+        value=None,
+        placeholder='Select a NGL model to view'
+    ),
+
+    dashbio.NglMoleculeViewer(
+        id='ngl-molecule-viewer',
+        height='1500px',
+        width='1500px',
+    ),
+
 ])
 
