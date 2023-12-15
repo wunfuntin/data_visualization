@@ -1,4 +1,4 @@
-name: dash_prot_char_v1
+name: dash_prot_char_v1_1
 channels:
   - https://conda.graylab.jhu.edu
   - https://USERNAME:PASSWORD@conda.graylab.jhu.edu
@@ -246,4 +246,4 @@ dependencies:
     - threadpoolctl==3.2.0
     - tqdm==4.66.1
     - werkzeug==3.0.1
-prefix: /opt/anaconda3/envs/dash_prot_char_v1
+prefix: /opt/anaconda3/envs/dash_prot_char_v1_1
