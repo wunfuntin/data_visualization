@@ -3,6 +3,7 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from flask import Flask
+import multiprocessing as mp
 
 # Local imports
 from components import navbar, footer
@@ -41,6 +42,7 @@ app.layout = html.Div(
 
 
 if __name__ == '__main__':
+    mp.set_start_method('spawn')
     app.run_server(
         debug=True
     )
