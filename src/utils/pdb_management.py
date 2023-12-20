@@ -5,23 +5,19 @@ import shutil
 import subprocess
 
 from datetime import datetime
-
+import os
 
 def add_directory_to_path(directory):
     """Adds the specified directory to the PATH environment variable."""
     os.environ['PATH'] += os.pathsep + directory
 
-def get_top_pdbs_from_silent(pdb_file_list):
-    binary_path = '/silent_tools'
-    silent_file_path = ('/Users/rwalker/Documents/TT_lab/python/dash_prot_char_v1_1/'
-                        'silent_test_data/gdf8_denovo_IAP.silent')
+def get_top_pdbs_from_silent(pdb_file_list, silent_file_path, outputDir):
 
-    add_directory_to_path(binary_path)
 
     current_time = datetime.now().strftime('%m%d%y_%H_%M')
 
-    directory_name = (f'/Users/rwalker/Documents/TT_lab/python/dash_prot_char_v1_1/silent_test_data/extracted_pdbs/'
-                      f'pdbs_{current_time}')
+    directory_name = (outputDir +
+                      f'/pdbs_{current_time}')
 
     if not os.path.exists(directory_name):
         os.makedirs(directory_name, exist_ok=True)
@@ -32,7 +28,7 @@ def get_top_pdbs_from_silent(pdb_file_list):
     file_paths = []
     for pdb in pdb_file_list:
 
-        command = f"{binary_path}/silentextractspecific {silent_file_path} {pdb}"
+        command = f"silentextractspecific {silent_file_path} {pdb}"
 
 
         try:
@@ -51,7 +47,7 @@ def get_top_pdbs_from_silent(pdb_file_list):
             file.read()
 
         output_file_name = f'{pdb}.pdb'
-        source_file_path = '/Users/rwalker/Documents/TT_lab/python/dash_prot_char_v1_1/silent_tools/' + output_file_name
+        source_file_path = os.getcwd() + "/" + output_file_name
         destination_file_path = os.path.join(directory_name, output_file_name)
         shutil.move(source_file_path, destination_file_path)
 

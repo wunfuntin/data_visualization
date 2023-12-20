@@ -10,13 +10,14 @@ import io
 import pandas as pd
 import plotly.graph_objs as go
 import re
+import sys
+from dash.exceptions import PreventUpdate
 
-# Local imports
-from src.utils.common_functions import (generate_hover_text, create_correlation_plot,
+from utils.common_functions import (generate_hover_text, create_correlation_plot,
                                         filter_dataframe, create_3d_correlation_plot,
                                         filter_dataframe_3d_scatter)
 
-from src.utils.pdb_management import get_top_pdbs_from_silent
+from utils.pdb_management import get_top_pdbs_from_silent
 
 cache = diskcache.Cache('./cache')
 background_callback_manager = DiskcacheManager(cache)
@@ -38,8 +39,26 @@ def handle_csv_upload(contents):
 
         except Exception as e:
             return html.Div(['There was an error processing the CSV file.'])
-
-
+        
+# Callback for Inputing and storing file paths for Silent Files and output directories
+@callback(
+    [Output('storedSil', 'data'),
+     Output('storedOut', 'data')],
+    [Input('submitbutton_id', 'n_clicks')],
+    [State('storedSil', 'data'),
+     State('silent', 'value'),
+     State('outDir', 'value'),
+     State('storedOut', 'data')]
+)
+def update_dirs(n_clicks, storedSil, silent, outDir, storedOut ):
+    if n_clicks is None:
+        raise PreventUpdate
+    if silent not in storedSil:
+        storedSil.append(silent)
+    if outDir not in storedOut:
+        storedOut.append(outDir)
+    return storedSil, storedOut
+    
 # @callback(
 #     Output('xaxis-column-1', 'options'),
 #     [Input('dataframe-json', 'children')]
@@ -346,6 +365,43 @@ def download_csv(n_clicks, filtered_json):
     else:
         raise dash.exceptions.PreventUpdate
 
+# Silent File dropdown
+@callback(
+    Output('my-dropdownSil', 'options'),
+    [Input('storedSil', 'data')],
+    prevent_initial_call=True
+)
+def update_dropdown_options(data):
+    options = [{'label': value, 'value': value} for value in data]
+    return options
+
+# Callback to display the selected item from the dropdown
+@callback(
+    Output('selectedSil', 'children'),
+    [Input('my-dropdownSil', 'value')],
+    prevent_initial_call=True
+)
+def display_selected_item(selected_value):
+    return selected_value
+
+# output directory dropdown
+@callback(
+    Output('my-dropdownDir', 'options'),
+    [Input('storedOut', 'data')],
+    prevent_initial_call=True
+)
+def update_dropdown_options(data):
+    options = [{'label': value, 'value': value} for value in data]
+    return options
+
+# Callback to display the selected item from the dropdown
+@callback(
+    Output('selectedDir', 'children'),
+    [Input('my-dropdownDir', 'value')],
+    prevent_initial_call=True
+)
+def display_selected_item(selected_value):
+    return selected_value
 
 # Callback to get the PDBS from the silent files based on the common_data_points
 @callback(
@@ -363,13 +419,16 @@ def get_pdb_list(n_clicks, column_data):
 @callback([
     Output('pdb-file-list', 'children'),
     Output('pdb-path-list', 'children')],
-    [Input('get-pdb-list', 'children')],
+    [Input('get-pdb-list', 'children'),
+     Input('selectedSil','children'),
+     Input('selectedDir','children')
+     ],
     background=True, manager=background_callback_manager
 )
-def get_pdb_files(pdb_list):
+def get_pdb_files(pdb_list,selectedSil, selectedDir):
     if pdb_list is not None:
         pdb_file_list = json.loads(pdb_list)
-        pdb_path_list = get_top_pdbs_from_silent(pdb_file_list)
+        pdb_path_list = get_top_pdbs_from_silent(pdb_file_list, selectedSil, selectedDir)
         return pdb_file_list, pdb_path_list
     return 'Click the button and wait for data to be processed.', None
 

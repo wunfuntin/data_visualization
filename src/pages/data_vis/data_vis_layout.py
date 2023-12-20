@@ -34,6 +34,22 @@ layout = html.Div([
         accept='.csv'
     ),
 
+# Silent File and output Directory input
+    html.Div(["Please input the file path to your silent file:",
+        dcc.Input(id='silent', value='', type='text')]),
+        html.Div(["Please specify the output directory for extracted PDBs",
+        dcc.Input(id='outDir', value='', type='text')]),
+
+        html.H2("", id='nullVal'),
+
+        html.Button('Submit', id='submitbutton_id'),
+
+        dcc.Store(id='storedSil', data=[], storage_type = 'local'),  
+
+        dcc.Store(id='storedOut', data=[], storage_type = 'local'),  
+
+        html.H4(id='currentSilent'),
+
     # Scatter Plot and Radar Plot
     html.Div([
         html.Div([
@@ -253,6 +269,13 @@ layout = html.Div([
         dcc.Download(id='download-dataframe-csv')],
         style={'padding-bottom': '20px'}
     ),
+
+# dropdown elements
+    dcc.Dropdown(id='my-dropdownSil'),
+    html.Div(id='selectedSil'),
+
+    dcc.Dropdown(id='my-dropdownDir'),
+    html.Div(id='selectedDir'),
 
     html.Div([
        dbc.Button('Get pdb files', id='get-pdb-button', color='secondary', n_clicks=0)
